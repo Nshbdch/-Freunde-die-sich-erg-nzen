@@ -2700,6 +2700,319 @@ h1.display-title .line-3 {
 /* =================================================================
    RESPONSIVE
    ================================================================= */
+
+/* ====== COMPACTION MOBILE (< 720px) ====== */
+/* Objectif : faire tenir le contenu sur moins d'écrans en gardant tout visible */
+@media (max-width: 719px) {
+  /* Espacements globaux réduits */
+  .section-title {
+    margin: 44px auto 22px;
+  }
+  .section-sub {
+    font-size: 0.94rem;
+    line-height: 1.45;
+  }
+  .fraktur-h {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
+  }
+
+  /* Réduire les ombres dures pour gagner de la place visuelle */
+  :root { --shadow-hard: 4px 4px 0 var(--ink); }
+
+  /* === HERO === */
+  .hero { padding: 32px 0 60px; gap: 22px; }
+  .hero-card { padding: 18px 16px; gap: 12px; }
+  .stein { width: 90px; }
+  .countdown { gap: 6px; }
+  .countdown span { padding: 8px 4px; }
+  .countdown strong { font-size: 1.35rem; }
+  .countdown em { font-size: 0.55rem; }
+  .card-dates { font-size: 1.7rem; }
+
+  /* === RIBBON STATS : 2 colonnes au lieu de 1 === */
+  .ribbon-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px;
+    transform: rotate(-0.5deg);
+  }
+  .ribbon-stats article { padding: 10px 12px; }
+  .ribbon-stats .big { font-size: 1.7rem; }
+  .ribbon-stats .lbl { font-size: 0.72rem; line-height: 1.2; }
+
+  /* === INTRO CARDS plus compactes === */
+  .intro-grid { gap: 14px; margin-top: 50px; }
+  .intro-card { padding: 22px 20px; }
+  .intro-card h2 { font-size: 1.6rem; }
+  .intro-card p { font-size: 0.94rem; }
+  .intro-icon { width: 48px; height: 48px; margin-bottom: 10px; }
+
+  /* ============================================================
+     === BOARDING PASS · LAYOUT MOBILE TRÈS COMPACT ===
+     - Header avec stub fusionné (icône + LH + classe + prix)
+     - Aller/Retour côte à côte en 2 cartes condensées
+     - Bouton CTA seul en bas
+     ============================================================ */
+  .boarding-pass {
+    border-radius: 18px;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  /* Stub : compacté en bandeau horizontal */
+  .bp-stub {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+  .bp-stub-airline { padding-bottom: 10px; }
+  .bp-stub-icon { width: 28px; height: 28px; font-size: 0.9rem; }
+  .bp-stub-airline strong { font-size: 0.76rem; letter-spacing: 0.16em; }
+  .bp-stub-flight strong { font-size: 1.4rem; }
+  .bp-mini-label { font-size: 0.55rem; margin-bottom: 2px; }
+  .bp-stub-info > div strong { font-size: 1.2rem; }
+  .bp-stub-barcode { height: 32px; padding: 6px; margin-top: 2px; }
+  .bp-stub-passenger { font-size: 0.6rem; }
+
+  /* Main : padding réduit */
+  .bp-main {
+    padding: 18px 14px;
+    gap: 14px;
+  }
+  .bp-main::before, .bp-main::after {
+    width: 18px; height: 18px;
+    top: -11px;
+  }
+  .bp-main::before { left: -11px; }
+  .bp-main::after  { right: -11px; }
+
+  .bp-header { padding-bottom: 12px; gap: 8px; }
+  .bp-logo-circle { width: 30px; height: 30px; }
+  .bp-logo-text { font-size: 1.1rem; }
+  .bp-class { font-size: 0.66rem; padding: 4px 10px; letter-spacing: 0.12em; }
+
+  /* Labels Aller/Retour : plus discrets */
+  .bp-leg-label { gap: 8px; margin-bottom: -8px; }
+  .bp-leg-tag { padding: 3px 10px; font-size: 0.62rem; letter-spacing: 0.14em; box-shadow: 1.5px 1.5px 0 var(--ink); }
+  .bp-leg-meta { font-size: 0.66rem; line-height: 1.3; }
+
+  /* Route : la grosse économie de place
+     Layout en grid 3 colonnes très serrées */
+  .bp-route {
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+  .bp-airport-code {
+    font-size: 2rem;
+    letter-spacing: 0.01em;
+  }
+  .bp-airport-name {
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+    line-height: 1.25;
+  }
+  .bp-time {
+    font-size: 1.15rem;
+    margin-top: 6px;
+  }
+  .bp-date {
+    font-size: 0.6rem;
+    margin-top: 2px;
+    letter-spacing: 0.08em;
+  }
+  .bp-route-mid { padding: 4px 0; gap: 4px; }
+  .bp-plane { width: 44px; height: 16px; }
+  .bp-duration > span { font-size: 0.9rem; }
+  .bp-duration em { font-size: 0.56rem; letter-spacing: 0.1em; }
+  .bp-route-dots { display: none; }
+
+  /* Séparateur Aller/Retour : très fin */
+  .bp-divider { margin: 2px 0; gap: 8px; }
+  .bp-divider-icon {
+    width: 26px; height: 26px;
+    font-size: 0.85rem;
+  }
+
+  /* Footer : sur 2 colonnes, prix mis en avant */
+  .bp-footer {
+    padding: 12px 14px;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .bp-info-block strong { font-size: 0.86rem; line-height: 1.25; }
+  .bp-price-block { grid-column: 1 / -1; text-align: center; }
+  .bp-price-block strong.bp-price { font-size: 1.8rem; }
+
+  .bp-actions { gap: 6px; }
+  .bp-warning { font-size: 0.66rem; line-height: 1.35; }
+
+  /* === BOOKING / LOGEMENTS : cards compactes === */
+  .booking-panel { padding: 12px; gap: 10px; margin-bottom: 18px; }
+  .date-tabs { padding: 3px; }
+  .tab { padding: 9px; }
+  .tab strong { font-size: 0.9rem; }
+  .tab em { font-size: 0.58rem; }
+  .filters { gap: 4px; }
+  .chip { padding: 7px 11px; font-size: 0.78rem; }
+  .sort-row label { font-size: 0.6rem; }
+  #sort-select { padding: 8px 12px; font-size: 0.88rem; }
+
+  .accommodation-grid { gap: 12px; }
+  .accommodation-card {
+    padding: 14px;
+    gap: 10px;
+    border-radius: 18px;
+    /* Icône à gauche du titre, infos plus tassées */
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+  .accommodation-card > .accommodation-icon { grid-row: 1; grid-column: 1; }
+  .accommodation-card > div:nth-child(2) { grid-row: 1; grid-column: 2; }
+  .accommodation-card > .price-row { grid-column: 1 / -1; grid-row: 2; }
+  .accommodation-card > .note { grid-column: 1 / -1; grid-row: 3; }
+  .accommodation-card > .card-actions { grid-column: 1 / -1; grid-row: 4; }
+  .accommodation-icon {
+    width: 42px; height: 42px;
+    font-size: 1.3rem;
+    border-radius: 12px;
+  }
+  .accommodation-card h3 { font-size: 1.04rem; line-height: 1.2; }
+  .meta-row { gap: 4px; margin-top: 5px; }
+  .pill { padding: 3px 7px; font-size: 0.66rem; }
+  .price-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .price-box { padding: 8px 10px; }
+  .price-box span { font-size: 0.55rem; letter-spacing: 0.12em; }
+  .price-box strong { font-size: 1.2rem; }
+  .note { padding: 9px 11px; font-size: 0.84rem; }
+
+  .recommendation { padding: 20px; gap: 12px; margin-top: 20px; }
+  .recommendation h3 { font-size: 1.4rem; }
+  .recommendation p { font-size: 0.94rem; line-height: 1.45; }
+  .reco-stamp {
+    top: 14px; right: -36px;
+    padding: 5px 36px;
+    font-size: 0.62rem;
+  }
+
+  /* === TIMELINE / PROGRAMME : plus serrée === */
+  .timeline { gap: 12px; }
+  .timeline-head { padding: 14px 16px; gap: 12px; }
+  .day-badge { width: 50px; height: 50px; border-radius: 14px; }
+  .day-num { font-size: 1.3rem; }
+  .day-tag { font-size: 0.54rem; }
+  .head-text strong { font-size: 0.98rem; }
+  .head-text small { font-size: 0.82rem; }
+  .chevron { width: 32px; height: 32px; }
+  .chevron svg { width: 14px; height: 14px; }
+  .timeline-body p {
+    padding: 0 16px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+  .timeline-body ul { padding: 0 16px 16px; gap: 6px; }
+  .timeline-body li {
+    padding: 8px 10px;
+    font-size: 0.84rem;
+    line-height: 1.35;
+    border-left-width: 3px;
+  }
+  .bullet { width: 24px; height: 24px; font-size: 0.78rem; }
+
+  /* === TENTES : 2 colonnes dès mobile === */
+  .tent-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .tent-card {
+    padding: 14px 12px;
+    border-radius: 16px;
+    gap: 6px;
+  }
+  .tent-emoji {
+    width: 40px; height: 40px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    margin-top: 4px;
+  }
+  .tent-card h3 { font-size: 0.96rem; margin: 4px 0 2px; }
+  .tent-card p { font-size: 0.78rem; line-height: 1.4; }
+  .tent-time {
+    padding: 4px 8px;
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    margin-top: 4px;
+  }
+
+  /* === ILLUSTRATED : padding réduit === */
+  .illustrated {
+    padding: 24px 20px;
+    gap: 16px;
+    margin-top: 50px;
+  }
+  .ferris-svg { width: 200px; }
+  .floating-deco-pretzel { width: 50px; height: 50px; top: 12px; right: 14px; }
+  .illus-copy h2 { font-size: 1.7rem; }
+  .illus-copy p { font-size: 0.94rem; line-height: 1.5; }
+  .illus-copy .kicker { padding: 10px 12px; font-size: 0.82rem; margin-top: 12px; }
+
+  /* === BUDGET : 2 colonnes dès mobile pour les 2 premières, la 3e prend toute la largeur === */
+  .budget-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .budget-card {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+  .budget-card:nth-child(3) { grid-column: 1 / -1; }
+  .bdg-num { top: 6px; right: 10px; font-size: 2.4rem; }
+  .icon-circle {
+    width: 44px; height: 44px;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+  }
+  .budget-card h3 { font-size: 1rem; margin-bottom: 4px; }
+  .budget-card strong { font-size: 1.7rem; margin: 2px 0 6px; }
+  .budget-card p { font-size: 0.82rem; line-height: 1.4; }
+
+  /* === TIPS : 2 colonnes dès mobile === */
+  .tips-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .tip {
+    padding: 16px 14px;
+    border-radius: 18px;
+  }
+  .tip-icon {
+    width: 40px; height: 40px;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  .tip h3 { font-size: 1rem; margin-bottom: 4px; }
+  .tip p { font-size: 0.82rem; line-height: 1.4; }
+
+  /* === PHRASEBOOK : compact === */
+  .phrasebook { gap: 8px; }
+  .phrase { padding: 12px 16px; gap: 4px; }
+  .phrase-de { font-size: 1.4rem; }
+  .phrase-fr { font-size: 0.82rem; line-height: 1.35; }
+
+  /* === SOURCES === */
+  .sources { padding: 22px 18px; margin: 50px auto 24px; }
+  .sources-title { font-size: 1.7rem; }
+  .sources p { font-size: 0.9rem; }
+  .source-links { gap: 6px; margin-top: 12px; }
+  .source-links a { padding: 7px 11px; font-size: 0.78rem; }
+
+  /* === FOOTER === */
+  .footer { padding-top: 30px; margin-top: 40px; }
+  .footer-inner { padding: 26px 0 22px; gap: 14px; }
+  .footer-fraktur { font-size: 1.6rem; }
+}
+
 @media (min-width: 720px) {
   :root { --section: min(1180px, calc(100% - 56px)); }
 
