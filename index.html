@@ -2586,6 +2586,82 @@ h1.display-title .line-3 {
 .delay-4 { transition-delay: 400ms; }
 
 /* =================================================================
+   BULLE DE DIALOGUE PERSONNAGE
+   Suit le personnage en JS via position: fixed
+   ================================================================= */
+.char-bubble {
+  position: fixed;
+  z-index: 70;
+  /* Le point d'ancrage est en bas-centre de la bulle */
+  transform: translate(-50%, -100%) scale(0.6);
+  transform-origin: bottom center;
+  max-width: 200px;
+  min-width: 80px;
+  padding: 6px 12px 8px;
+  border-radius: 14px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  white-space: normal;
+  word-wrap: break-word;
+  transition:
+    opacity 220ms ease,
+    transform 320ms cubic-bezier(.34, 1.6, .64, 1);
+}
+.char-bubble-name {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bav-red);
+  margin-bottom: 3px;
+  padding-bottom: 3px;
+  border-bottom: 1px dashed rgba(42, 29, 14, 0.25);
+}
+.char-bubble-text {
+  display: block;
+}
+.char-bubble.show {
+  opacity: 1;
+  transform: translate(-50%, -100%) scale(1);
+}
+/* Queue pointant vers le bas (vers la tête du personnage) */
+.char-bubble::before {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 10px solid var(--ink);
+}
+.char-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 8px solid var(--paper);
+}
+
+/* =================================================================
    TOAST & CONFETTI
    ================================================================= */
 .toast {
@@ -3105,9 +3181,6 @@ h1.display-title .line-3 {
           <span class="line-3">qui se complète</span>
         </h1>
         <p class="hero-text">
-          Le plan clair pour partir à l'Oktoberfest sans se ruiner : dates en semaine,
-          logements Booking triés, tentes à viser, itinéraire sur 3 jours et budget réaliste.
-          <br/><br/>
           <strong>Prost!</strong> Concocté par <em>Quentibus 2K</em>, <em>Pitigros</em> et un dérèglement neuronal collectif — toute ressemblance avec un véritable plan de voyage est purement intentionnelle.
         </p>
         <div class="hero-actions">
@@ -4293,6 +4366,70 @@ function burstConfetti(count) {
 }
 
 /* ============================================================
+   BULLE DE DIALOGUE QUI SUIT UN PERSONNAGE
+   Crée une bulle au-dessus de l'élément cible, la fait suivre
+   pendant qu'elle est visible, puis la fait disparaître.
+   ============================================================ */
+const bubbles = new WeakMap(); // associe un élément à sa bulle active
+
+function sayBubble(targetEl, message, speaker) {
+  if (!targetEl || !message) return;
+
+  // Si une bulle est déjà attachée à ce personnage, on la retire d'abord
+  const existing = bubbles.get(targetEl);
+  if (existing) {
+    if (existing.removeTimer) clearTimeout(existing.removeTimer);
+    if (existing.rafId) cancelAnimationFrame(existing.rafId);
+    existing.node.remove();
+    bubbles.delete(targetEl);
+  }
+
+  const bubble = document.createElement("div");
+  bubble.className = "char-bubble";
+  bubble.setAttribute("role", "status");
+  bubble.setAttribute("aria-live", "polite");
+  bubble.innerHTML = (speaker ? `<span class="char-bubble-name">${speaker}</span>` : "")
+    + `<span class="char-bubble-text"></span>`;
+  bubble.querySelector(".char-bubble-text").textContent = message;
+  document.body.appendChild(bubble);
+
+  // Position de la bulle au-dessus du personnage
+  function position() {
+    const rect = targetEl.getBoundingClientRect();
+    // Centre horizontal du personnage
+    const cx = rect.left + rect.width / 2;
+    // Au-dessus de sa tête
+    const top = rect.top - 10;
+    bubble.style.left = `${cx}px`;
+    bubble.style.top  = `${top}px`;
+  }
+  position();
+  // Petite tempo avant d'apparaître pour permettre la transition
+  requestAnimationFrame(() => bubble.classList.add("show"));
+
+  // Suit le personnage tant que la bulle est visible
+  const entry = { node: bubble, rafId: 0, removeTimer: 0 };
+  function follow() {
+    position();
+    entry.rafId = requestAnimationFrame(follow);
+  }
+  entry.rafId = requestAnimationFrame(follow);
+
+  // Auto-disparition : durée proportionnelle à la longueur du message (min 2.4s, max 5s)
+  const dur = Math.min(5000, Math.max(2400, message.length * 65));
+  entry.removeTimer = setTimeout(() => {
+    bubble.classList.remove("show");
+    setTimeout(() => {
+      cancelAnimationFrame(entry.rafId);
+      bubble.remove();
+      if (bubbles.get(targetEl) === entry) bubbles.delete(targetEl);
+    }, 280);
+  }, dur);
+
+  bubbles.set(targetEl, entry);
+}
+
+/* ============================================================
    HOVER SUR BUTTONS PROST → tinkle
    ============================================================ */
 function setupClinkOnHover() {
@@ -4351,33 +4488,35 @@ const fritz = {
 
 const FRITZ_MESSAGES = {
   0: [
-    "Servus! Merci pour la première Maß 🍺",
+    "Servus, danke! 🍺",
     "Aaah, ça fait du bien.",
-    "Une de plus et on est lancés !"
+    "Encore une et on est lancés !"
   ],
   1: [
-    "Prost! La deuxième, elle descend bien.",
-    "Je commence à sentir le bretzel arriver…",
-    "Tu es un véritable Kumpel, toi."
+    "Prost ! Elle descend bien…",
+    "Je sens le bretzel arriver.",
+    "T'es un vrai Kumpel, toi."
   ],
   2: [
     "Hic ! Pardon… *hic*",
-    "C'est moi ou ça tangue ?",
-    "Je crois que je vois deux Marienplatz."
+    "Ça tangue, là, non ?",
+    "Je vois deux Marienplatz."
   ],
   3: [
-    "Ohhh… *hic* … encore une ?!",
-    "Mon chapeau est de travers, normal ?",
-    "*chante faux* Ein Prooosit, ein Prooosit…"
+    "Ohhh… *hic* …",
+    "Mon chapeau est de travers ?",
+    "Ein Prooosit…",
+    "Pitigros, c'est toi ?!"
   ],
   4: [
-    "Zzzz… (Quentibus 2K s'est endormi)",
-    "Chuuut, il dort. Clique pour le réveiller.",
-    "Il rêve d'une chope géante 🍺💤"
+    "Zzzz… 💤",
+    "Chuuut, il dort.",
+    "Rêve de chope géante 🍺",
+    "Repos bien mérité…"
   ],
   wake: [
     "Hein ?! Où suis-je ?!",
-    "Servus ! Je me suis assoupi…",
+    "Servus ! Je dormais ?",
     "Un café, schnell !"
   ]
 };
@@ -4503,8 +4642,10 @@ function fritzGiveBeer() {
   clearTimeout(fritz.drinkingTimer);
   fritz.drinkingTimer = setTimeout(() => {
     fritz.el.removeAttribute("data-action");
-    // Niveau d'ivresse : palier tous les 2 verres
-    const newDrunk = Math.min(4, Math.floor(fritz.beers / 2));
+    // Mapping bières → niveau d'ivresse :
+    // 0 = sobre, 1 = joyeux, 2-3 = pompette, 4 = très ivre, 5+ = dort
+    const drunkMap = [0, 1, 2, 2, 3, 4];
+    const newDrunk = drunkMap[Math.min(fritz.beers, 5)];
     if (newDrunk !== fritz.drunk) {
       fritz.drunk = newDrunk;
       if (fritz.drunk >= 4) {
@@ -4516,13 +4657,13 @@ function fritzGiveBeer() {
     }
     // Message
     const msgs = FRITZ_MESSAGES[fritz.drunk] || FRITZ_MESSAGES[0];
-    toast("Quentibus 2K : « " + msgs[Math.floor(Math.random() * msgs.length)] + " »");
+    sayBubble(fritz.el, msgs[Math.floor(Math.random() * msgs.length)], "Quentibus 2K");
   }, 850);
 }
 
 function fritzSleep() {
   fritzSetState("sleeping");
-  toast("Quentibus 2K : « " + FRITZ_MESSAGES[4][Math.floor(Math.random() * FRITZ_MESSAGES[4].length)] + " »");
+  sayBubble(fritz.el, FRITZ_MESSAGES[4][Math.floor(Math.random() * FRITZ_MESSAGES[4].length)], "Quentibus 2K");
   // Réveil automatique après 15s
   clearTimeout(fritz.sleepTimer);
   fritz.sleepTimer = setTimeout(() => {
@@ -4535,7 +4676,7 @@ function fritzWakeUp() {
   // Reset partiel : sobre à 50% mais garde le compteur de bières
   fritz.drunk = 1;
   fritzSetState("walking");
-  toast("Quentibus 2K : « " + FRITZ_MESSAGES.wake[Math.floor(Math.random() * FRITZ_MESSAGES.wake.length)] + " »");
+  sayBubble(fritz.el, FRITZ_MESSAGES.wake[Math.floor(Math.random() * FRITZ_MESSAGES.wake.length)], "Quentibus 2K");
 }
 
 /* ============================================================
@@ -4561,13 +4702,13 @@ const pitigro = {
 };
 
 const PITIGRO_MESSAGES = {
-  0: ["Mmh, ein Brezn! Merci.", "Un délice, ce bretzel.", "Pas de bière, juste du gluten."],
-  1: ["Hmmmm, encore un peu salé.", "Ma ceinture commence à m'embêter…", "Excellent, encore !"],
-  2: ["*BURP* Pardon, c'était involontaire.", "Je sens que ça grossit là-dedans.", "Hipp-hip… j'crois j'ai trop mangé."],
-  3: ["Aïe, mon ventre…", "Je marche moins vite, normal ?", "Encore un et je vais regretter."],
-  4: ["Stop ! Non, en fait, continue.", "Je dépasse de mon Lederhose, là.", "Un dernier, juste pour la route."],
-  5: ["AAAARGH ça va exploser !!!", "C'EST TROP !!! 🥨💥", "Adieu cruel monde du Brezn…"],
-  reborn: ["Je suis ressuscité ! Servus !", "Comment ai-je fait pour exploser ?", "Une autre tournée de bretzels ? 😋"]
+  0: ["Mmh, ein Brezn ! 🥨", "Délicieux, ce bretzel.", "Pas de bière, juste du sel."],
+  1: ["Hmmmm, encore !", "Ma ceinture serre…", "Excellent ! Un autre !"],
+  2: ["*BURP* Pardon !", "Ça grossit là-dedans.", "Hipp… trop mangé ?"],
+  3: ["Aïe, mon ventre…", "Je marche moins vite ?", "Quentibus, t'es saoul ?"],
+  4: ["Stop ! Non, continue.", "Mon Lederhose craque !", "Un dernier… juste un."],
+  5: ["AAAARGH ça explose !!", "C'EST TROP !!! 💥", "Adieu monde cruel…"],
+  reborn: ["Je suis ressuscité !", "Servus, c'était quoi ça ?", "Encore des bretzels ? 😋"]
 };
 
 function pitigroInit() {
@@ -4683,7 +4824,7 @@ function pitigroGivePretzel() {
     // Message
     const tier = pitigro.girth;
     const msgs = PITIGRO_MESSAGES[tier] || PITIGRO_MESSAGES[0];
-    toast("Pitigro : « " + msgs[Math.floor(Math.random() * msgs.length)] + " »");
+    sayBubble(pitigro.el, msgs[Math.floor(Math.random() * msgs.length)], "Pitigros");
 
     // À niveau 5 il explose
     if (pitigro.girth >= 5) {
@@ -4714,7 +4855,7 @@ function pitigroExplode() {
       pitigro.isExploding = false;
       pitigroSetState("walking");
       const msgs = PITIGRO_MESSAGES.reborn;
-      toast("Pitigro : « " + msgs[Math.floor(Math.random() * msgs.length)] + " »");
+      sayBubble(pitigro.el, msgs[Math.floor(Math.random() * msgs.length)], "Pitigros");
     }, 500);
   }, 1000);
 }
